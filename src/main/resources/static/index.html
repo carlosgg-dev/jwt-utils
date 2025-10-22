@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT Utils</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>JWT Utils</h1>
+        <div class="bento-grid">
+            <div class="bento-item">
+                <h2>Password Encoder</h2>
+                <div class="password-input-container">
+                    <input type="text" id="password-input" placeholder="Enter password">
+                    <button id="encode-button">Encode</button>
+                </div>
+                <div>
+                    <p>Encoded Password:</p>
+                    <pre id="encoded-password"></pre>
+                </div>
+            </div>
+            <div class="bento-item">
+                <h2>JWT Secret Key Generator</h2>
+                <div>
+                    <button id="generate-button">Generate</button>
+                </div>
+                <div>
+                    <p>Secret Key:</p>
+                    <pre id="secret-key"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

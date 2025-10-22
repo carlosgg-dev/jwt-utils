@@ -1,0 +1,20 @@
+# Build artifacts
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Log files
+*.log
+
+# macOS
+.DS_Store
+
+# Maven wrapper
+.mvn/wrapper/maven-wrapper.zip
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
