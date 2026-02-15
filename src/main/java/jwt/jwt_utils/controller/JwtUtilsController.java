@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 @RestController
@@ -28,10 +30,16 @@ public class JwtUtilsController {
         return Map.of("encodedPassword", encodedPassword);
     }
 
-    @GetMapping("/generate")
-    public Map<String, String> generateSecret() {
+    @GetMapping("/generateHS512")
+    public Map<String, String> generateSecretHS512() {
 
-        String secretKey = jwtSecretKeyGenerator.generate();
+        String secretKey = jwtSecretKeyGenerator.generateSymmetricHS512();
         return Map.of("secretKey", secretKey);
+    }
+
+    @GetMapping("/generateECDSAP256")
+    public Map<String, String> generateSecretECDSAP256() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
+
+        return jwtSecretKeyGenerator.generateAsymmetricECDSAP256();
     }
 }

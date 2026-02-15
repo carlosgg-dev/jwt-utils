@@ -32,7 +32,7 @@ class JwtUtilsServicesIntegrationTest {
     @Test
     void jwtSecretKeyGeneratorWorksInSpringContext() {
 
-        assertDoesNotThrow(() -> jwtSecretKeyGenerator.generate());
+        assertDoesNotThrow(() -> jwtSecretKeyGenerator.generateSymmetricHS512());
     }
 
     @Test
@@ -56,7 +56,7 @@ class JwtUtilsServicesIntegrationTest {
     void servicesCanBeUsedTogether() {
 
         assertDoesNotThrow(() -> {
-            jwtSecretKeyGenerator.generate();
+            jwtSecretKeyGenerator.generateSymmetricHS512();
             passwordEncoderService.encode("combinedTestPassword");
         });
     }

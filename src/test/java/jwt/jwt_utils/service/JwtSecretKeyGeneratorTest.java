@@ -4,6 +4,8 @@ import io.jsonwebtoken.io.Decoders;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -19,9 +21,9 @@ class JwtSecretKeyGeneratorTest {
     }
 
     @Test
-    void generate_returnsValidBase64UrlKey() {
+    void generateSymmetricHS512_returnsValidBase64UrlKey() {
 
-        String base64UrlKey = jwtSecretKeyGenerator.generate();
+        String base64UrlKey = jwtSecretKeyGenerator.generateSymmetricHS512();
 
         assertNotNull(base64UrlKey);
 
@@ -32,11 +34,25 @@ class JwtSecretKeyGeneratorTest {
     }
 
     @Test
-    void generate_generatesDifferentKeysOnMultipleCalls() {
+    void generateSymmetricHS512_generatesDifferentKeysOnMultipleCalls() {
 
-        String firstKey = jwtSecretKeyGenerator.generate();
-        String secondKey = jwtSecretKeyGenerator.generate();
+        String firstKey = jwtSecretKeyGenerator.generateSymmetricHS512();
+        String secondKey = jwtSecretKeyGenerator.generateSymmetricHS512();
 
         assertNotEquals(firstKey, secondKey);
+    }
+
+    @Test
+    void generateAsymmetricECDSAP256_returnsValidKeyPair() {
+
+        assertDoesNotThrow(() -> {
+            Map<String, String> keys = jwtSecretKeyGenerator.generateAsymmetricECDSAP256();
+
+            assertNotNull(keys);
+            assertTrue(keys.containsKey("publicKey"));
+            assertTrue(keys.containsKey("privateKey"));
+            assertNotNull(keys.get("publicKey"));
+            assertNotNull(keys.get("privateKey"));
+        });
     }
 }

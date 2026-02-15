@@ -38,7 +38,7 @@ class JwtUtilsControllerTest {
     private JwtSecretKeyGenerator jwtSecretKeyGenerator;
 
     @Test
-    void encodePassword_shouldReturnBadRequest_whenPasswordIsEmpty() throws Exception {
+    void encodePassword_whenPasswordIsEmpty_shouldReturnBadRequest() throws Exception {
 
         PasswordDto emptyPasswordDto = PasswordDto.builder()
             .password("")
@@ -53,7 +53,7 @@ class JwtUtilsControllerTest {
     }
 
     @Test
-    void encodePassword_shouldReturnBadRequest_whenPasswordIsMissing() throws Exception {
+    void encodePassword_whenPasswordIsMissing_shouldReturnBadRequest() throws Exception {
 
         String missingPasswordPayload = objectMapper.writeValueAsString(Map.of("someOtherField", "value"));
 
@@ -64,7 +64,7 @@ class JwtUtilsControllerTest {
     }
 
     @Test
-    void encodePassword_shouldReturnOk_whenPasswordIsProvided() throws Exception {
+    void encodePassword_whenPasswordIsProvided_shouldReturnEncodedPassword() throws Exception {
 
         PasswordDto validPasswordDto = PasswordDto.builder()
             .password("testPassword")
@@ -83,14 +83,30 @@ class JwtUtilsControllerTest {
     }
 
     @Test
-    void generateSecret_shouldReturnOk_withGeneratedSecret() throws Exception {
+    void generateSecretHS512_shouldReturnGeneratedSecret() throws Exception {
 
         String generatedSecret = "generated_secret_key";
 
-        given(jwtSecretKeyGenerator.generate()).willReturn(generatedSecret);
+        given(jwtSecretKeyGenerator.generateSymmetricHS512()).willReturn(generatedSecret);
 
-        mockMvc.perform(get("/api/generate"))
+        mockMvc.perform(get("/api/generateHS512"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.secretKey").value(generatedSecret));
+    }
+
+    @Test
+    void generateSecretECDSAP256_shouldReturnGeneratedKeyPair() throws Exception {
+
+        Map<String, String> keyPair = Map.of(
+                "publicKey", "public_key",
+                "privateKey", "private_key"
+        );
+
+        given(jwtSecretKeyGenerator.generateAsymmetricECDSAP256()).willReturn(keyPair);
+
+        mockMvc.perform(get("/api/generateECDSAP256"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.publicKey").value("public_key"))
+                .andExpect(jsonPath("$.privateKey").value("private_key"));
     }
 }
