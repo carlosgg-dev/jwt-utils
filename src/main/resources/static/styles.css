@@ -11,7 +11,7 @@ body {
 
 .container {
     width: 100%;
-    max-width: 800px;
+    max-width: 1200px;
     padding: 0 1rem 80px;
     box-sizing: border-box;
 }
@@ -76,11 +76,12 @@ pre.json-output {
 
 .bento-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.5rem;
 }
 
 .bento-item {
+    min-width: 0;
     background-color: rgb(43, 43, 43);
     border-radius: 12px;
     padding: 1.5rem;
