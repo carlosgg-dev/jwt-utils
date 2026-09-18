@@ -2,6 +2,8 @@ package jwt.jwt_utils.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jwt.jwt_utils.dto.PasswordDto;
+import jwt.jwt_utils.exception.KeyGenerationException;
+import jwt.jwt_utils.model.EncodedKeyPair;
 import jwt.jwt_utils.service.JwtSecretKeyGenerator;
 import jwt.jwt_utils.service.PasswordEncoderService;
 import org.junit.jupiter.api.Test;
@@ -12,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.anyString;
@@ -49,7 +52,8 @@ class JwtUtilsControllerTest {
         mockMvc.perform(post("/api/encode")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(emptyPasswordPayload))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("password must not be blank"));
     }
 
     @Test
@@ -97,10 +101,7 @@ class JwtUtilsControllerTest {
     @Test
     void generateSecretECDSAP256_shouldReturnGeneratedKeyPair() throws Exception {
 
-        Map<String, String> keyPair = Map.of(
-                "publicKey", "public_key",
-                "privateKey", "private_key"
-        );
+        EncodedKeyPair keyPair = new EncodedKeyPair("public_key", "private_key");
 
         given(jwtSecretKeyGenerator.generateAsymmetricECDSAP256()).willReturn(keyPair);
 
@@ -108,5 +109,18 @@ class JwtUtilsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.publicKey").value("public_key"))
                 .andExpect(jsonPath("$.privateKey").value("private_key"));
+    }
+
+    @Test
+    void generateSecretECDSAP256_whenKeyGenerationFails_shouldReturnInternalServerError() throws Exception {
+
+        String failureMessage = "Unable to generate an ECDSA P-256 key pair";
+
+        given(jwtSecretKeyGenerator.generateAsymmetricECDSAP256())
+                .willThrow(new KeyGenerationException(failureMessage, new NoSuchAlgorithmException()));
+
+        mockMvc.perform(get("/api/generateECDSAP256"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message").value(failureMessage));
     }
 }

@@ -1,10 +1,9 @@
 package jwt.jwt_utils.service;
 
 import io.jsonwebtoken.io.Decoders;
+import jwt.jwt_utils.model.EncodedKeyPair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -45,14 +44,10 @@ class JwtSecretKeyGeneratorTest {
     @Test
     void generateAsymmetricECDSAP256_returnsValidKeyPair() {
 
-        assertDoesNotThrow(() -> {
-            Map<String, String> keys = jwtSecretKeyGenerator.generateAsymmetricECDSAP256();
+        EncodedKeyPair keyPair = jwtSecretKeyGenerator.generateAsymmetricECDSAP256();
 
-            assertNotNull(keys);
-            assertTrue(keys.containsKey("publicKey"));
-            assertTrue(keys.containsKey("privateKey"));
-            assertNotNull(keys.get("publicKey"));
-            assertNotNull(keys.get("privateKey"));
-        });
+        assertNotNull(keyPair);
+        assertDoesNotThrow(() -> Decoders.BASE64.decode(keyPair.publicKey()));
+        assertDoesNotThrow(() -> Decoders.BASE64.decode(keyPair.privateKey()));
     }
 }

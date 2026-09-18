@@ -1,7 +1,11 @@
 package jwt.jwt_utils.controller;
 
 import jakarta.validation.Valid;
+import jwt.jwt_utils.dto.EncodedPasswordResponse;
+import jwt.jwt_utils.dto.KeyPairResponse;
 import jwt.jwt_utils.dto.PasswordDto;
+import jwt.jwt_utils.dto.SecretKeyResponse;
+import jwt.jwt_utils.model.EncodedKeyPair;
 import jwt.jwt_utils.service.JwtSecretKeyGenerator;
 import jwt.jwt_utils.service.PasswordEncoderService;
 import lombok.RequiredArgsConstructor;
@@ -10,10 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.security.InvalidAlgorithmParameterException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -24,22 +24,21 @@ public class JwtUtilsController {
     private final JwtSecretKeyGenerator jwtSecretKeyGenerator;
 
     @PostMapping("/encode")
-    public Map<String, String> encodePassword(@Valid @RequestBody PasswordDto payload) {
+    public EncodedPasswordResponse encodePassword(@Valid @RequestBody PasswordDto payload) {
 
-        String encodedPassword = passwordEncoderService.encode(payload.getPassword());
-        return Map.of("encodedPassword", encodedPassword);
+        return new EncodedPasswordResponse(passwordEncoderService.encode(payload.getPassword()));
     }
 
     @GetMapping("/generateHS512")
-    public Map<String, String> generateSecretHS512() {
+    public SecretKeyResponse generateSecretHS512() {
 
-        String secretKey = jwtSecretKeyGenerator.generateSymmetricHS512();
-        return Map.of("secretKey", secretKey);
+        return new SecretKeyResponse(jwtSecretKeyGenerator.generateSymmetricHS512());
     }
 
     @GetMapping("/generateECDSAP256")
-    public Map<String, String> generateSecretECDSAP256() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
+    public KeyPairResponse generateSecretECDSAP256() {
 
-        return jwtSecretKeyGenerator.generateAsymmetricECDSAP256();
+        EncodedKeyPair keyPair = jwtSecretKeyGenerator.generateAsymmetricECDSAP256();
+        return new KeyPairResponse(keyPair.publicKey(), keyPair.privateKey());
     }
 }

@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const secretHS512Output = document.getElementById('secret-hs512-key');
     const secretECDSAP256Output = document.getElementById('secret-ecdsap256-key');
 
-    const API_BASE_URL = 'http://localhost:8080/api';
+    const API_BASE_URL = '/api';
 
     const showError = (inputElement) => {
         inputElement.classList.add('error-input');
