@@ -7,8 +7,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
 class PasswordEncoderServiceTest {
@@ -19,15 +20,16 @@ class PasswordEncoderServiceTest {
     private PasswordEncoderService passwordEncoderService;
 
     @Test
-    void encode_shouldReturnEncodedPassword() {
+    void encode_shouldReturnThePasswordEncoderResult() {
 
         String rawPassword = "testPassword";
-        String mockedEncodedPassword = "mockedEncodedPassword";
+        String expectedHash = "$2a$10$expectedHash";
 
-        given(passwordEncoder.encode(rawPassword)).willReturn(mockedEncodedPassword);
+        given(passwordEncoder.encode(rawPassword)).willReturn(expectedHash);
 
         String encodedPassword = passwordEncoderService.encode(rawPassword);
 
-        assertNotEquals(rawPassword, encodedPassword);
+        assertEquals(expectedHash, encodedPassword);
+        then(passwordEncoder).should().encode(rawPassword);
     }
 }

@@ -24,7 +24,8 @@ A small web application that provides utilities for JSON Web Tokens (JWT) and pa
 Layered (Controller → Service), no persistence.
 
 ```
-config/     SecurityConfig  - security filter chain and the BCrypt PasswordEncoder bean
+config/     SecurityConfig - security filter chain and response headers
+            PasswordEncoderConfig - the BCrypt PasswordEncoder bean
 controller/ JwtUtilsController - REST entry point under /api
 service/    PasswordEncoderService, JwtSecretKeyGenerator
 dto/        request and response payloads, the API contract
