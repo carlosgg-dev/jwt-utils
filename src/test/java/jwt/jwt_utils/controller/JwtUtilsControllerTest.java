@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jwt.jwt_utils.dto.PasswordDto;
 import jwt.jwt_utils.exception.KeyGenerationException;
 import jwt.jwt_utils.model.EncodedKeyPair;
+import jwt.jwt_utils.model.JwkKeyPair;
 import jwt.jwt_utils.service.JwtSecretKeyGenerator;
 import jwt.jwt_utils.service.PasswordEncoderService;
 import org.junit.jupiter.api.Test;
@@ -122,5 +123,24 @@ class JwtUtilsControllerTest {
         mockMvc.perform(get("/api/generateECDSAP256"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.message").value(failureMessage));
+    }
+
+    @Test
+    void generateJwkECDSAP256_shouldReturnBothKeysAsEmbeddedJsonObjects() throws Exception {
+
+        String publicJwk = """
+                {"kty":"EC","kid":"key-id"}""";
+
+        String privateJwk = """
+                {"kty":"EC","kid":"key-id","d":"private-scalar"}""";
+
+        given(jwtSecretKeyGenerator.generateJwkECDSAP256())
+                .willReturn(new JwkKeyPair(publicJwk, privateJwk));
+
+        mockMvc.perform(get("/api/generateECDSAP256JWK"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.publicKey.kty").value("EC"))
+                .andExpect(jsonPath("$.publicKey.kid").value("key-id"))
+                .andExpect(jsonPath("$.privateKey.d").value("private-scalar"));
     }
 }

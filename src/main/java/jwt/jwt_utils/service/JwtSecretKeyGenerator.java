@@ -1,9 +1,12 @@
 package jwt.jwt_utils.service;
 
 import io.jsonwebtoken.io.Encoders;
+import io.jsonwebtoken.security.EcPrivateJwk;
+import io.jsonwebtoken.security.Jwks;
 import io.jsonwebtoken.security.Keys;
 import jwt.jwt_utils.exception.KeyGenerationException;
 import jwt.jwt_utils.model.EncodedKeyPair;
+import jwt.jwt_utils.model.JwkKeyPair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +28,7 @@ public class JwtSecretKeyGenerator {
     private static final int HS512_KEY_LENGTH_BYTES = 64;
     private static final String EC_ALGORITHM = "EC";
     private static final String P256_CURVE = "secp256r1";
+    private static final String P256_JWS_ALGORITHM = "ES256";
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     /**
@@ -62,6 +66,31 @@ public class JwtSecretKeyGenerator {
 
         log.info("Generated ECDSA P-256 asymmetric key pair successfully");
         return new EncodedKeyPair(publicKey, privateKey);
+    }
+
+    /**
+     * Generates an ECDSA P-256 key pair in JWK format (RFC 7517), ready to be dropped
+     * into a JWKS endpoint or a signing configuration. Both keys carry the ES256
+     * algorithm and the same RFC 7638 thumbprint as their key id.
+     *
+     * @return the public and private JWK, each one a JSON document.
+     * @throws KeyGenerationException if the runtime cannot provide the EC curve.
+     */
+    public JwkKeyPair generateJwkECDSAP256() {
+
+        EcPrivateJwk privateJwk = Jwks.builder()
+                .ecKeyPair(generateEcKeyPair())
+                .algorithm(P256_JWS_ALGORITHM)
+                .idFromThumbprint()
+                .build();
+
+        // UNSAFE_JSON is the only way to serialize the "d" member: every other path
+        // redacts it. Handing the private key over once is this endpoint's purpose.
+        String privateKey = Jwks.UNSAFE_JSON(privateJwk);
+        String publicKey = Jwks.json(privateJwk.toPublicJwk());
+
+        log.info("Generated ECDSA P-256 JWK pair successfully");
+        return new JwkKeyPair(publicKey, privateKey);
     }
 
     private KeyPair generateEcKeyPair() {

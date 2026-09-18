@@ -6,7 +6,8 @@ A small web application that provides utilities for JSON Web Tokens (JWT) and pa
 
 - **Password Encoder:** Encodes a raw password using BCrypt.
 - **HS512 Secret Key Generator:** Generates a 64-byte symmetric key for JWT signing with the HS512 algorithm.
-- **ECDSA P-256 Key Pair Generator:** Generates an asymmetric key pair (secp256r1) for JWT signing with the ES256 algorithm.
+- **ECDSA P-256 Key Pair Generator:** Generates an asymmetric key pair (secp256r1) for JWT signing with the ES256 algorithm, Base64 encoded.
+- **ECDSA P-256 JWK Generator:** Generates the same kind of key pair in JWK format (RFC 7517), ready to drop into a JWKS endpoint.
 
 ## Tech Stack
 
@@ -29,7 +30,7 @@ config/     SecurityConfig - security filter chain and response headers
 controller/ JwtUtilsController - REST entry point under /api
 service/    PasswordEncoderService, JwtSecretKeyGenerator
 dto/        request and response payloads, the API contract
-model/      EncodedKeyPair - service return type, decoupled from the API contract
+model/      EncodedKeyPair, JwkKeyPair - service return types, decoupled from the API contract
 exception/  KeyGenerationException and the GlobalExceptionHandler advice
 ```
 
@@ -73,6 +74,7 @@ The application provides a simple web interface with a dark theme and a Bento Gr
 - **Password Encoder:** Enter a password and click "Encode" to see the BCrypt hash.
 - **HS512 Secret Key Generator:** Click "Generate" to get a new symmetric secret key.
 - **ECDSA P-256 Secret Key Generator:** Click "Generate" to get a new public/private key pair.
+- **ECDSA P-256 JWK Generator:** Click "Generate" to get the same key pair as two JWK documents.
 
 ## API Endpoints
 
@@ -123,6 +125,35 @@ The application provides a simple web interface with a dark theme and a Bento Gr
   ```
 - **Response `500`:** returned when the runtime cannot provide the secp256r1 curve.
 
+### Generate ECDSA P-256 JWK Pair
+
+- **URL:** `/api/generateECDSAP256JWK`
+- **Method:** `GET`
+- **Response `200`:** both keys as JWK documents (RFC 7517). They share the same `kid`,
+  an RFC 7638 thumbprint, and only the private one carries the `d` member.
+  ```json
+  {
+    "publicKey": {
+      "alg": "ES256",
+      "kty": "EC",
+      "crv": "P-256",
+      "x": "...",
+      "y": "...",
+      "kid": "..."
+    },
+    "privateKey": {
+      "alg": "ES256",
+      "kty": "EC",
+      "crv": "P-256",
+      "x": "...",
+      "y": "...",
+      "kid": "...",
+      "d": "..."
+    }
+  }
+  ```
+- **Response `500`:** returned when the runtime cannot provide the secp256r1 curve.
+
 ## Security Considerations
 
 - **Same-origin only:** no CORS mapping is declared, so the API is only reachable from the
@@ -132,4 +163,5 @@ The application provides a simple web interface with a dark theme and a Bento Gr
 - **Password Encoding:** passwords are hashed with Spring Security's `BCryptPasswordEncoder`.
 - **No Sensitive Logging:** neither raw passwords nor generated keys are ever logged.
 - **Generated keys are secrets:** they are returned once and never stored. Keep them out of
-  version control and put them in your own secret manager.
+  version control and put them in your own secret manager. The JWK endpoint deliberately
+  serializes the private `d` member, which every other code path redacts.

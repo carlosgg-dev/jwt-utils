@@ -2,10 +2,12 @@ package jwt.jwt_utils.controller;
 
 import jakarta.validation.Valid;
 import jwt.jwt_utils.dto.EncodedPasswordResponse;
+import jwt.jwt_utils.dto.JwkPairResponse;
 import jwt.jwt_utils.dto.KeyPairResponse;
 import jwt.jwt_utils.dto.PasswordDto;
 import jwt.jwt_utils.dto.SecretKeyResponse;
 import jwt.jwt_utils.model.EncodedKeyPair;
+import jwt.jwt_utils.model.JwkKeyPair;
 import jwt.jwt_utils.service.JwtSecretKeyGenerator;
 import jwt.jwt_utils.service.PasswordEncoderService;
 import lombok.RequiredArgsConstructor;
@@ -40,5 +42,12 @@ public class JwtUtilsController {
 
         EncodedKeyPair keyPair = jwtSecretKeyGenerator.generateAsymmetricECDSAP256();
         return new KeyPairResponse(keyPair.publicKey(), keyPair.privateKey());
+    }
+
+    @GetMapping("/generateECDSAP256JWK")
+    public JwkPairResponse generateJwkECDSAP256() {
+
+        JwkKeyPair jwkPair = jwtSecretKeyGenerator.generateJwkECDSAP256();
+        return new JwkPairResponse(jwkPair.publicKey(), jwkPair.privateKey());
     }
 }

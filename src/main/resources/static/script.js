@@ -2,10 +2,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const encodeButton = document.getElementById('encode-button');
     const generateHS512Button = document.getElementById('generate-hs512-button');
     const generateECDSAP256Button = document.getElementById('generate-ecdsap256-button');
+    const generateECDSAP256JwkButton = document.getElementById('generate-ecdsap256-jwk-button');
     const passwordInput = document.getElementById('password-input');
     const encodedPasswordOutput = document.getElementById('encoded-password');
     const secretHS512Output = document.getElementById('secret-hs512-key');
     const secretECDSAP256Output = document.getElementById('secret-ecdsap256-key');
+    const publicECDSAP256JwkOutput = document.getElementById('public-ecdsap256-jwk');
+    const privateECDSAP256JwkOutput = document.getElementById('private-ecdsap256-jwk');
 
     const API_BASE_URL = '/api';
 
@@ -82,6 +85,24 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error generating ECDSA P-256 key:', error);
             secretECDSAP256Output.textContent = 'Error generating ECDSA P-256 key.';
+        }
+    });
+
+    generateECDSAP256JwkButton.addEventListener('click', async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/generateECDSAP256JWK`);
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+            publicECDSAP256JwkOutput.textContent = JSON.stringify(data.publicKey, null, 2);
+            privateECDSAP256JwkOutput.textContent = JSON.stringify(data.privateKey, null, 2);
+        } catch (error) {
+            console.error('Error generating ECDSA P-256 JWK:', error);
+            publicECDSAP256JwkOutput.textContent = 'Error generating ECDSA P-256 JWK.';
+            privateECDSAP256JwkOutput.textContent = '';
         }
     });
 });

@@ -8,6 +8,7 @@ import lombok.Value;
 @Value
 public class PasswordDto {
 
-    @NotBlank
+    // Pinned so the API contract does not shift with the JVM default locale.
+    @NotBlank(message = "must not be blank")
     String password;
 }
